@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # ==========================================
-# VIREON TOURNAMENT BOT (FIXED)
+# VIREON TOURNAMENT BOT (ULTRA UPGRADE - KZ/RU/EN)
 # ==========================================
 
 BOT_TOKEN = "8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE"
@@ -29,8 +29,10 @@ SECOND_PRIZE = 400
 MAP_NAME = "Двойная проблема"
 PLAYER_LIMIT = 5
 
-# Күйлер (States)
-WAITING_FOR_BS_ID, WAITING_FOR_RECEIPT, WAITING_MATCH_ID = range(3)
+# Conversation күйлері
+WAITING_FOR_BS_ID = 1
+WAITING_FOR_RECEIPT = 2
+WAITING_MATCH_ID = 3
 
 REGISTERED_PLAYERS = []
 PLAYERS_INFO = []
@@ -139,6 +141,7 @@ def lang_menu():
         [InlineKeyboardButton("🇰🇿 Қазақша", callback_data="set_lang_KK")],
         [InlineKeyboardButton("🇷🇺 Русский", callback_data="set_lang_RU")],
         [InlineKeyboardButton("🇬🇧 English", callback_data="set_lang_EN")],
+        [InlineKeyboardButton("⬅️ Артқа / Назад", callback_data="home")]
     ])
 
 def back_menu(user_id):
@@ -154,29 +157,38 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = TEXTS[lang]["welcome"]
     
     if update.callback_query:
-        await update.callback_query.message.edit_text(text, reply_markup=main_menu(user_id))
+        try:
+            await update.callback_query.answer()
+            await update.callback_query.message.edit_text(text, reply_markup=main_menu(user_id))
+        except Exception:
+            await update.callback_query.message.reply_text(text, reply_markup=main_menu(user_id))
     else:
         await update.effective_message.reply_text(text, reply_markup=main_menu(user_id))
 
 
-async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     user_id = query.from_user.id
     lang = get_lang(user_id)
     t = TEXTS[lang]
 
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception:
+        pass
 
     if query.data == "home":
         await query.edit_message_text(t["welcome"], reply_markup=main_menu(user_id))
-    
+        return ConversationHandler.END
+
     elif query.data == "change_lang":
         await query.edit_message_text("🌐 Тілді таңдаңыз / Выберите язык / Select language:", reply_markup=lang_menu())
 
     elif query.data.startswith("set_lang_"):
         new_lang = query.data.split("_")[2]
         USER_LANGS[user_id] = new_lang
-        await query.edit_message_text(TEXTS[new_lang]["welcome"], reply_markup=main_menu(user_id))
+        new_t = TEXTS[new_lang]
+        await query.edit_message_text(new_t["welcome"], reply_markup=main_menu(user_id))
 
     elif query.data == "rules":
         await query.edit_message_text(t["rules"], reply_markup=back_menu(user_id))
@@ -186,34 +198,38 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         profile_txt = t["profile"].format(name=user.full_name, id=user.id, tt=TIKTOK_HANDLE, yt=YOUTUBE_HANDLE)
         await query.edit_message_text(profile_txt, parse_mode="Markdown", reply_markup=back_menu(user_id))
 
+    elif query.data == "find_1v1":
+        context.user_data["match_mode"] = "1в1"
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
+        await query.edit_message_text(t["match_1v1_start"], reply_markup=back_kb)
+        return WAITING_MATCH_ID
 
-# --- MATCHMAKING HANDLERS ---
+    elif query.data == "find_3v3":
+        context.user_data["match_mode"] = "3в3"
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
+        await query.edit_message_text(t["match_3v3_start"], reply_markup=back_kb)
+        return WAITING_MATCH_ID
 
-async def start_matchmaking_1v1(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    user_id = query.from_user.id
-    await query.answer()
-    context.user_data["match_mode"] = "1в1"
-    
-    await query.edit_message_text(TEXTS[get_lang(user_id)]["match_1v1_start"], reply_markup=back_menu(user_id))
-    return WAITING_MATCH_ID
+    elif query.data == "start_reg":
+        if len(REGISTERED_PLAYERS) >= PLAYER_LIMIT:
+            await query.edit_message_text(t["reg_full"], reply_markup=back_menu(user_id))
+            return ConversationHandler.END
+        
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
+        await query.edit_message_text(t["reg_start"], reply_markup=back_kb)
+        return WAITING_FOR_BS_ID
 
 
-async def start_matchmaking_3v3(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    user_id = query.from_user.id
-    await query.answer()
-    context.user_data["match_mode"] = "3в3"
-    
-    await query.edit_message_text(TEXTS[get_lang(user_id)]["match_3v3_start"], reply_markup=back_menu(user_id))
-    return WAITING_MATCH_ID
-
+# --- MATCHMAKING & REGISTRATION MESSAGES ---
 
 async def process_matchmaking(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     user_id = user.id
     lang = get_lang(user_id)
     t = TEXTS[lang]
+
+    if not update.message or not update.message.text:
+        return WAITING_MATCH_ID
 
     bs_id = update.message.text
     mode = context.user_data.get("match_mode", "1в1")
@@ -249,27 +265,13 @@ async def process_matchmaking(update: Update, context: ContextTypes.DEFAULT_TYPE
     return ConversationHandler.END
 
 
-# --- REGISTRATION ---
-
-async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    user_id = query.from_user.id
-    lang = get_lang(user_id)
-    t = TEXTS[lang]
-    await query.answer()
-    
-    if len(REGISTERED_PLAYERS) >= PLAYER_LIMIT:
-        await query.edit_message_text(t["reg_full"], reply_markup=back_menu(user_id))
-        return ConversationHandler.END
-
-    await query.edit_message_text(t["reg_start"], reply_markup=back_menu(user_id))
-    return WAITING_FOR_BS_ID
-
-
 async def get_bs_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     lang = get_lang(user_id)
     t = TEXTS[lang]
+
+    if not update.message or not update.message.text:
+        return WAITING_FOR_BS_ID
 
     bs_id = update.message.text
     context.user_data["bs_id"] = bs_id
@@ -294,6 +296,10 @@ async def get_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     t = TEXTS[lang]
     bs_id = context.user_data.get("bs_id", "Unknown")
 
+    if not update.message or not (update.message.photo or update.message.document):
+        await update.message.reply_text("📸 Өтініш, төлем чегін скриншот (фото) немесе файл түрінде жіберіңіз!", reply_markup=back_menu(user_id))
+        return WAITING_FOR_RECEIPT
+
     admin_keyboard = InlineKeyboardMarkup([
         [
             InlineKeyboardButton("✅ Қабылдау", callback_data=f"approve_{user.id}_{bs_id}"),
@@ -308,18 +314,27 @@ async def get_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🎮 BS ID/Ник: `{bs_id}`"
     )
 
-    if update.message.photo:
-        await context.bot.send_photo(chat_id=ADMIN_ID, photo=update.message.photo[-1].file_id, caption=caption_text, reply_markup=admin_keyboard, parse_mode="Markdown")
-    elif update.message.document:
-        await context.bot.send_document(chat_id=ADMIN_ID, document=update.message.document.file_id, caption=caption_text, reply_markup=admin_keyboard, parse_mode="Markdown")
+    try:
+        if update.message.photo:
+            await context.bot.send_photo(chat_id=ADMIN_ID, photo=update.message.photo[-1].file_id, caption=caption_text, reply_markup=admin_keyboard, parse_mode="Markdown")
+        elif update.message.document:
+            await context.bot.send_document(chat_id=ADMIN_ID, document=update.message.document.file_id, caption=caption_text, reply_markup=admin_keyboard, parse_mode="Markdown")
+    except Exception:
+        pass
 
     await update.message.reply_text(t["receipt_sent"], reply_markup=back_menu(user_id))
     return ConversationHandler.END
 
 
-async def cancel_reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    await update.message.reply_text("Canceled.", reply_markup=main_menu(user_id))
+    lang = get_lang(user_id)
+    if update.callback_query:
+        try:
+            await update.callback_query.answer()
+            await update.callback_query.message.edit_text(TEXTS[lang]["welcome"], reply_markup=main_menu(user_id))
+        except Exception:
+            pass
     return ConversationHandler.END
 
 
@@ -327,7 +342,10 @@ async def cancel_reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def admin_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception:
+        pass
 
     data = query.data.split("_")
     action = data[0]
@@ -340,14 +358,22 @@ async def admin_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
             REGISTERED_PLAYERS.append(target_user_id)
             PLAYERS_INFO.append({"id": target_user_id, "bs_id": bs_id})
 
-        await query.edit_message_caption(caption=query.message.caption + "\n\n✅ **СТАТУС: ҚАБЫЛДАНДЫ**")
+        try:
+            await query.edit_message_caption(caption=query.message.caption + "\n\n✅ **СТАТУС: ҚАБЫЛДАНДЫ**")
+        except Exception:
+            pass
+
         await context.bot.send_message(
             chat_id=target_user_id,
             text=TEXTS[target_lang]["approved"],
             reply_markup=main_menu(target_user_id)
         )
     elif action == "reject":
-        await query.edit_message_caption(caption=query.message.caption + "\n\n❌ **СТАТУС: ҚАЙТАРЫЛДЫ**")
+        try:
+            await query.edit_message_caption(caption=query.message.caption + "\n\n❌ **СТАТУС: ҚАЙТАРЫЛДЫ**")
+        except Exception:
+            pass
+
         await context.bot.send_message(
             chat_id=target_user_id,
             text=TEXTS[target_lang]["rejected"],
@@ -368,27 +394,30 @@ def main():
 
     app = Application.builder().token(BOT_TOKEN).build()
 
+    # Барлық түймелер мен conversation логикасын біріктіретін басты тұс
     conv_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(start_registration, pattern="^start_reg$"),
-            CallbackQueryHandler(start_matchmaking_1v1, pattern="^find_1v1$"),
-            CallbackQueryHandler(start_matchmaking_3v3, pattern="^find_3v3$"),
+            CallbackQueryHandler(buttons_handler, pattern="^(start_reg|find_1v1|find_3v3|home|rules|my_profile|change_lang|set_lang_.*)$")
         ],
         states={
             WAITING_FOR_BS_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_bs_id)],
-            WAITING_FOR_RECEIPT: [MessageHandler(filters.PHOTO | filters.Document.ALL, get_receipt)],
+            WAITING_FOR_RECEIPT: [MessageHandler(filters.PHOTO | filters.Document.ALL | filters.TEXT, get_receipt)],
             WAITING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_matchmaking)],
         },
-        fallbacks=[CommandHandler("cancel", cancel_reg)],
+        fallbacks=[
+            CommandHandler("cancel", cancel_conversation),
+            CallbackQueryHandler(buttons_handler, pattern="^(home|change_lang|set_lang_.*)$")
+        ],
     )
 
     app.add_handler(conv_handler)
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_panel))
     app.add_handler(CallbackQueryHandler(admin_decision, pattern="^(approve|reject)_"))
-    app.add_handler(CallbackQueryHandler(buttons))
+    # Жалпы callback handler басқа батырмалар үшін де қызмет етеді
+    app.add_handler(CallbackQueryHandler(buttons_handler))
 
-    logger.info("VIREON Multi-Lang Bot запущен!")
+    logger.info("VIREON Bot (Ultra Upgrade) іске қосылды!")
     app.run_polling()
 
 

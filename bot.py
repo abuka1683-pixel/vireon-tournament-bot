@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # ==========================================
-# VIREON TOURNAMENT BOT (KZ / RU / EN)
+# VIREON TOURNAMENT BOT (FIXED)
 # ==========================================
 
 BOT_TOKEN = "8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE"
@@ -30,7 +30,7 @@ MAP_NAME = "Двойная проблема"
 PLAYER_LIMIT = 5
 
 # Күйлер (States)
-WAITING_FOR_BS_ID, WAITING_FOR_RECEIPT, BROADCAST_TEXT, WAITING_MATCH_ID = range(4)
+WAITING_FOR_BS_ID, WAITING_FOR_RECEIPT, WAITING_MATCH_ID = range(3)
 
 REGISTERED_PLAYERS = []
 PLAYERS_INFO = []
@@ -38,15 +38,11 @@ PLAYERS_INFO = []
 QUEUE_1V1 = []
 QUEUE_3V3 = []
 
-# Қолданушылардың таңдаған тілдерін сақтау
 USER_LANGS = {}
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ==========================================
-# ТІЛДЕР СӨЗДІГІ (TEXT TRANSLATIONS)
-# ==========================================
 TEXTS = {
     "KK": {
         "welcome": "🎮 VIREON БОТЫНА ҚОШ КЕЛДІҢІЗ!\n\nТурнирлерге қатысып, 1в1 немесе 3в3 форматта қарсылас табыңыз.\n\nҚажетті бөлімді таңдаңыз:",
@@ -191,7 +187,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(profile_txt, parse_mode="Markdown", reply_markup=back_menu(user_id))
 
 
-# --- MATCHMAKING ---
+# --- MATCHMAKING HANDLERS ---
 
 async def start_matchmaking_1v1(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query

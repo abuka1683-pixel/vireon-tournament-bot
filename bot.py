@@ -24,14 +24,13 @@ from telegram.ext import (
 # Key: BOT_TOKEN
 # Value: осында BotFather берген токеніңді енгіз.
 
-BOT_TOKEN = os.getenv("8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE", "").strip()
-
+BOT_TOKEN = "8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE"
 # ==================================================
 # ⚙️ ТУРНИР БАПТАУЛАРЫ
 # ==================================================
 
 # 🟡 ӨЗІҢНІҢ ОРИГИНАЛ КАНАЛЫҢНЫҢ СІЛТЕМЕСІН ОСЫ ЖЕРГЕ ҚОЙ!
-CHANNEL_URL = "https://t.me/https:/sabinanizhaksykoremm"
+CHANNEL_URL = "https://t.me/sabinanizhaksykoremm"
 
 ENTRY_FEE = 250
 FIRST_PLACE = 600

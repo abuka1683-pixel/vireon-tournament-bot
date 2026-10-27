@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # ==========================================
-# VIREON TOURNAMENT & MATCHMAKING BOT
+# VIREON TOURNAMENT BOT (KZ / RU / EN)
 # ==========================================
 
 BOT_TOKEN = "8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE"
@@ -20,7 +20,6 @@ ADMIN_ID = 6847899606
 ADMIN_USERNAME = "abukaa111222"
 CHANNEL_URL = "https://t.me/sabinanizhaksykoremm"
 
-# Профиль әлеуметтік желілері
 TIKTOK_HANDLE = "Nexor6589"
 YOUTUBE_HANDLE = "Nexor6589"
 
@@ -29,136 +28,210 @@ FIRST_PRIZE = 600
 SECOND_PRIZE = 400
 MAP_NAME = "Двойная проблема"
 PLAYER_LIMIT = 5
-BANNED_BRAWLERS = "Уйымдастырушымен кейін хабарланады"
 
-# Күйлер
+# Күйлер (States)
 WAITING_FOR_BS_ID, WAITING_FOR_RECEIPT, BROADCAST_TEXT, WAITING_MATCH_ID = range(4)
 
 REGISTERED_PLAYERS = []
 PLAYERS_INFO = []
 
-# Матч іздеу кезектері
 QUEUE_1V1 = []
 QUEUE_3V3 = []
+
+# Қолданушылардың таңдаған тілдерін сақтау
+USER_LANGS = {}
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# ==========================================
+# ТІЛДЕР СӨЗДІГІ (TEXT TRANSLATIONS)
+# ==========================================
+TEXTS = {
+    "KK": {
+        "welcome": "🎮 VIREON БОТЫНА ҚОШ КЕЛДІҢІЗ!\n\nТурнирлерге қатысып, 1в1 немесе 3в3 форматта қарсылас табыңыз.\n\nҚажетті бөлімді таңдаңыз:",
+        "btn_tour": "🏆 Турнирге қатысу",
+        "btn_1v1": "⚔️ 1в1 Дуэль табу",
+        "btn_3v3": "🛡️ 3в3 Команда табу",
+        "btn_profile": "👤 Менің профилім",
+        "btn_rules": "📋 Турнир ережелері",
+        "btn_channel": "📢 Негізгі канал",
+        "btn_lang": "🌐 Тілді ауыстыру / Язык / Language",
+        "btn_back": "⬅️ Бас мәзір",
+        "rules": f"🏆 BRAWL STARS ТУРНИРІНІҢ ЕРЕЖЕЛЕРІ\n\n💰 Кіру жарнасы: {ENTRY_FEE} ₸\n👥 Қатысушылар саны: {PLAYER_LIMIT} адам\n🗺️ Карта: {MAP_NAME}\n\n🥇 1-орын: {FIRST_PRIZE} ₸\n🥈 2-орын: {SECOND_PRIZE} ₸",
+        "profile": "👤 **СІЗДІҢ ПРОФИЛІҢІЗ**\n\n🏷️ Есімі: {name}\n🆔 Telegram ID: `{id}`\n\n📱 **Әлеуметтік желілер:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
+        "reg_start": "📝 **ТУРНИРГЕ ТІРКЕЛУ**\n\nӨтініш, өзіңіздің **Brawl Stars ID**-іңізді немесе никнейміңізді жазыңыз:",
+        "reg_full": "❌ Кешіріңіз, турнирдегі барлық орындар толып кетті!",
+        "bs_id_accept": "✅ Нигіңіз қабылданды: `{bs_id}`\n\n💳 **ЖАРНА ТӨЛЕУ ({fee} ₸)**\nРеквизит алу үшін ұйымдастырушыға жазыңыз: @{admin}\n\n📸 **Төлем жасаған соң, чекті осы чатқа жіберіңіз!**",
+        "btn_admin_write": "💬 Ұйымдастырушыға жазу",
+        "receipt_sent": "⏳ **Чек ұйымдастырушыға тексеруге жіберілді!**",
+        "match_1v1_start": "⚔️ **1в1 ДУЭЛЬ РЕЖИМІ**\n\nОйынға шығу үшін өзіңіздің **Brawl Stars ID** немесе никнейміңізді жазыңыз:",
+        "match_3v3_start": "🛡️ **3в3 КОМАНДА РЕЖИМІ**\n\nОйынға шығу үшін өзіңіздің **Brawl Stars ID** немесе никнейміңізді жазыңыз:",
+        "searching": "🔍 **{mode} ізделуде...**\n\nСіздің ID: `{bs_id}` қабылданды.\nҚарсылас ізделіп жатыр, сәл күтіңіз! ⏳",
+        "match_found": "🎉 **ҚАРСЫЛАС ТАБЫЛДЫ! ({mode})**\n\n🎮 Қарсыластың ID/Нигі: `{other_bs}`\n💬 Telegram: @{other_tg}\n\nЖылдам друзя тастап, ойынға кіріңіздер!",
+        "approved": "🎉 **ҚҰТТЫҚТАЙМЫЗ!** Өтінішіңіз расталды. Сіз турнирге сәтті тіркелдіңіз!",
+        "rejected": "❌ Кешіріңіз, өтінішіңіз қабылданбады."
+    },
+    "RU": {
+        "welcome": "🎮 ДОБРО ПОЖАЛОВАТЬ В VIREON БОТ!\n\nУчаствуйте в турнирах и находите соперников 1в1 или 3в3.\n\nВыберите нужный раздел:",
+        "btn_tour": "🏆 Участвовать в турнире",
+        "btn_1v1": "⚔️ Найти 1в1 Дуэль",
+        "btn_3v3": "🛡️ Найти 3в3 Команду",
+        "btn_profile": "👤 Мой профиль",
+        "btn_rules": "📋 Правила турнира",
+        "btn_channel": "📢 Основной канал",
+        "btn_lang": "🌐 Тілді ауыстыру / Язык / Language",
+        "btn_back": "⬅️ Главное меню",
+        "rules": f"🏆 ПРАВИЛА ТУРНИРА BRAWL STARS\n\n💰 Взнос: {ENTRY_FEE} ₸\n👥 Участников: {PLAYER_LIMIT} чел.\n🗺️ Карта: {MAP_NAME}\n\n🥇 1 место: {FIRST_PRIZE} ₸\n🥈 2 место: {SECOND_PRIZE} ₸",
+        "profile": "👤 **ВАШ ПРОФИЛЬ**\n\n🏷️ Имя: {name}\n🆔 Telegram ID: `{id}`\n\n📱 **Социальные сети:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
+        "reg_start": "📝 **РЕГИСТРАЦИЯ НА ТУРНИР**\n\nПожалуйста, напишите ваш **Brawl Stars ID** или никнейм:",
+        "reg_full": "❌ Извините, все слоты на турнир уже заняты!",
+        "bs_id_accept": "✅ Ваш ник принят: `{bs_id}`\n\n💳 **ОПЛАТА ВЗНОСА ({fee} ₸)**\nЧтобы получить реквизиты, напишите организатору: @{admin}\n\n📸 **После оплаты отправьте чек в этот чат!**",
+        "btn_admin_write": "💬 Написать организатору",
+        "receipt_sent": "⏳ **Чек отправлен организатору на проверку!**",
+        "match_1v1_start": "⚔️ **РЕЖИМ 1в1 ДУЭЛЬ**\n\nНапишите ваш **Brawl Stars ID** или никнейм для поиска:",
+        "match_3v3_start": "🛡️ **РЕЖИМ 3в3 КОМАНДА**\n\nНапишите ваш **Brawl Stars ID** или никнейм для поиска:",
+        "searching": "🔍 **Поиск {mode}...**\n\nВаш ID: `{bs_id}` принят.\nПоиск соперника, пожалуйста подождите! ⏳",
+        "match_found": "🎉 **СОПЕРНИК НАЙДЕН! ({mode})**\n\n🎮 ID/Ник соперника: `{other_bs}`\n💬 Telegram: @{other_tg}\n\nБыстрее добавляйтесь в друзья и начинайте игру!",
+        "approved": "🎉 **ПОЗДРАВЛЯЕМ!** Ваша заявка одобрена. Вы успешно зарегистрированы!",
+        "rejected": "❌ Извините, ваша заявка была отклонена."
+    },
+    "EN": {
+        "welcome": "🎮 WELCOME TO VIREON BOT!\n\nJoin tournaments and find 1v1 or 3v3 opponents.\n\nSelect a section below:",
+        "btn_tour": "🏆 Join Tournament",
+        "btn_1v1": "⚔️ Find 1v1 Duel",
+        "btn_3v3": "🛡️ Find 3v3 Team",
+        "btn_profile": "👤 My Profile",
+        "btn_rules": "📋 Tournament Rules",
+        "btn_channel": "📢 Official Channel",
+        "btn_lang": "🌐 Change Language / Тіл / Язык",
+        "btn_back": "⬅️ Main Menu",
+        "rules": f"🏆 BRAWL STARS TOURNAMENT RULES\n\n💰 Entry Fee: {ENTRY_FEE} ₸\n👥 Players: {PLAYER_LIMIT}\n🗺️ Map: {MAP_NAME}\n\n🥇 1st Place: {FIRST_PRIZE} ₸\n🥈 2nd Place: {SECOND_PRIZE} ₸",
+        "profile": "👤 **YOUR PROFILE**\n\n🏷️ Name: {name}\n🆔 Telegram ID: `{id}`\n\n📱 **Social Networks:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
+        "reg_start": "📝 **TOURNAMENT REGISTRATION**\n\nPlease enter your **Brawl Stars ID** or nickname:",
+        "reg_full": "❌ Sorry, all slots for the tournament are full!",
+        "bs_id_accept": "✅ Nickname accepted: `{bs_id}`\n\n💳 **ENTRY FEE ({fee} ₸)**\nContact organizer to get payment details: @{admin}\n\n📸 **Send your payment receipt screenshot here after payment!**",
+        "btn_admin_write": "💬 Contact Organizer",
+        "receipt_sent": "⏳ **Receipt sent to organizer for review!**",
+        "match_1v1_start": "⚔️ **1v1 DUEL MODE**\n\nEnter your **Brawl Stars ID** or nickname to start searching:",
+        "match_3v3_start": "🛡️ **3v3 TEAM MODE**\n\nEnter your **Brawl Stars ID** or nickname to start searching:",
+        "searching": "🔍 **Searching {mode}...**\n\nYour ID: `{bs_id}` accepted.\nLooking for an opponent, please wait! ⏳",
+        "match_found": "🎉 **OPPONENT FOUND! ({mode})**\n\n🎮 Opponent ID/Nick: `{other_bs}`\n💬 Telegram: @{other_tg}\n\nAdd each other as friends and start the match!",
+        "approved": "🎉 **CONGRATULATIONS!** Your application is approved. You are registered!",
+        "rejected": "❌ Sorry, your application was rejected."
+    }
+}
 
-def main_menu():
+def get_lang(user_id):
+    return USER_LANGS.get(user_id, "KK")
+
+def main_menu(user_id):
+    lang = get_lang(user_id)
+    t = TEXTS[lang]
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🏆 Турнирге қатысу", callback_data="start_reg")],
-        [InlineKeyboardButton("⚔️ 1в1 Дуэль табу", callback_data="find_1v1"),
-         InlineKeyboardButton("🛡️ 3в3 Команда табу", callback_data="find_3v3")],
-        [InlineKeyboardButton("👤 Менің профилім", callback_data="my_profile")],
-        [InlineKeyboardButton("📋 Турнир ережелері", callback_data="rules")],
-        [InlineKeyboardButton("📢 Негізгі канал", url=CHANNEL_URL)],
+        [InlineKeyboardButton(t["btn_tour"], callback_data="start_reg")],
+        [InlineKeyboardButton(t["btn_1v1"], callback_data="find_1v1"),
+         InlineKeyboardButton(t["btn_3v3"], callback_data="find_3v3")],
+        [InlineKeyboardButton(t["btn_profile"], callback_data="my_profile")],
+        [InlineKeyboardButton(t["btn_rules"], callback_data="rules")],
+        [InlineKeyboardButton(t["btn_channel"], url=CHANNEL_URL)],
+        [InlineKeyboardButton(t["btn_lang"], callback_data="change_lang")],
     ])
 
-
-def back_menu():
+def lang_menu():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("⬅️ Бас мәзір", callback_data="home")],
+        [InlineKeyboardButton("🇰🇿 Қазақша", callback_data="set_lang_KK")],
+        [InlineKeyboardButton("🇷🇺 Русский", callback_data="set_lang_RU")],
+        [InlineKeyboardButton("🇬🇧 English", callback_data="set_lang_EN")],
     ])
 
-
-def rules_text():
-    return (
-        "🏆 BRAWL STARS ТУРНИРІНІҢ ЕРЕЖЕЛЕРІ\n\n"
-        f"💰 Кіру жарнасы: {ENTRY_FEE} ₸\n"
-        f"👥 Қатысушылар саны: {PLAYER_LIMIT} адам\n"
-        f"🗺️ Карта: {MAP_NAME}\n\n"
-        f"🥇 1-орын: {FIRST_PRIZE} ₸\n"
-        f"🥈 2-орын: {SECOND_PRIZE} ₸\n"
-    )
+def back_menu(user_id):
+    lang = get_lang(user_id)
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton(TEXTS[lang]["btn_back"], callback_data="home")]
+    ])
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = (
-        "🎮 ҚОШ КЕЛДІҢІЗ, VIREON БОТЫНА!\n\n"
-        "Турнирлерге қатысып, 1в1 немесе 3в3 форматта қарсылас табыңыз.\n\n"
-        "Қажетті бөлімді таңдаңыз:"
-    )
+    user_id = update.effective_user.id
+    lang = get_lang(user_id)
+    text = TEXTS[lang]["welcome"]
+    
     if update.callback_query:
-        await update.callback_query.message.edit_text(text, reply_markup=main_menu())
+        await update.callback_query.message.edit_text(text, reply_markup=main_menu(user_id))
     else:
-        await update.effective_message.reply_text(text, reply_markup=main_menu())
+        await update.effective_message.reply_text(text, reply_markup=main_menu(user_id))
 
 
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    user_id = query.from_user.id
+    lang = get_lang(user_id)
+    t = TEXTS[lang]
+
     await query.answer()
 
     if query.data == "home":
-        await query.edit_message_text(
-            "🏆 БАС МӘЗІР\n\nБөлімді таңдаңыз:",
-            reply_markup=main_menu()
-        )
-    elif query.data == "rules":
-        await query.edit_message_text(rules_text(), reply_markup=back_menu())
+        await query.edit_message_text(t["welcome"], reply_markup=main_menu(user_id))
     
+    elif query.data == "change_lang":
+        await query.edit_message_text("🌐 Тілді таңдаңыз / Выберите язык / Select language:", reply_markup=lang_menu())
+
+    elif query.data.startswith("set_lang_"):
+        new_lang = query.data.split("_")[2]
+        USER_LANGS[user_id] = new_lang
+        await query.edit_message_text(TEXTS[new_lang]["welcome"], reply_markup=main_menu(user_id))
+
+    elif query.data == "rules":
+        await query.edit_message_text(t["rules"], reply_markup=back_menu(user_id))
+
     elif query.data == "my_profile":
         user = query.from_user
-        await query.edit_message_text(
-            f"👤 **СІЗДІҢ ПРОФИЛІҢІЗ**\n\n"
-            f"🏷️ Есімі: {user.full_name}\n"
-            f"🆔 Telegram ID: `{user.id}`\n\n"
-            f"📱 **Әлеуметтік желілер:**\n"
-            f"🎵 TikTok: `{TIKTOK_HANDLE}` (https://tiktok.com/@{TIKTOK_HANDLE})\n"
-            f"📺 YouTube: `{YOUTUBE_HANDLE}`\n",
-            parse_mode="Markdown",
-            reply_markup=back_menu()
-        )
+        profile_txt = t["profile"].format(name=user.full_name, id=user.id, tt=TIKTOK_HANDLE, yt=YOUTUBE_HANDLE)
+        await query.edit_message_text(profile_txt, parse_mode="Markdown", reply_markup=back_menu(user_id))
 
 
-# --- 1в1 / 3в3 ІЗДЕУГЕ ӨТУ ---
+# --- MATCHMAKING ---
 
 async def start_matchmaking_1v1(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    user_id = query.from_user.id
     await query.answer()
     context.user_data["match_mode"] = "1в1"
     
-    back_kb = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Артқа қайту", callback_data="home")]])
-    await query.edit_message_text(
-        "⚔️ **1в1 ДУЭЛЬ РЕЖИМІ**\n\n"
-        "Ойынға шығу үшін өзіңіздің **Brawl Stars ID** немесе никнейміңізді жазыңыз:",
-        reply_markup=back_kb
-    )
+    await query.edit_message_text(TEXTS[get_lang(user_id)]["match_1v1_start"], reply_markup=back_menu(user_id))
     return WAITING_MATCH_ID
 
 
 async def start_matchmaking_3v3(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    user_id = query.from_user.id
     await query.answer()
     context.user_data["match_mode"] = "3в3"
     
-    back_kb = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Артқа қайту", callback_data="home")]])
-    await query.edit_message_text(
-        "🛡️ **3в3 КОМАНДА РЕЖИМІ**\n\n"
-        "Ойынға шығу үшін өзіңіздің **Brawl Stars ID** немесе никнейміңізді жазыңыз:",
-        reply_markup=back_kb
-    )
+    await query.edit_message_text(TEXTS[get_lang(user_id)]["match_3v3_start"], reply_markup=back_menu(user_id))
     return WAITING_MATCH_ID
 
 
 async def process_matchmaking(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+    user_id = user.id
+    lang = get_lang(user_id)
+    t = TEXTS[lang]
+
     bs_id = update.message.text
     mode = context.user_data.get("match_mode", "1в1")
 
-    queue = QUEUE_1V1 if mode == "1v1" else QUEUE_3V3
-    player_data = {"user_id": user.id, "username": user.username or user.first_name, "bs_id": bs_id}
+    queue = QUEUE_1V1 if mode == "1в1" else QUEUE_3V3
+    player_data = {"user_id": user_id, "username": user.username or user.first_name, "bs_id": bs_id, "lang": lang}
 
-    if not any(p["user_id"] == user.id for p in queue):
+    if not any(p["user_id"] == user_id for p in queue):
         queue.append(player_data)
 
-    back_kb = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Бас мәзір", callback_data="home")]])
     await update.message.reply_text(
-        f"🔍 **{mode} ізделуде...**\n\n"
-        f"Сіздің ID: `{bs_id}` қабылданды.\n"
-        f"Қарсылас ізделіп жатыр, сәл күтіңіз! ⏳",
+        t["searching"].format(mode=mode, bs_id=bs_id),
         parse_mode="Markdown",
-        reply_markup=back_kb
+        reply_markup=back_menu(user_id)
     )
 
     if len(queue) >= 2:
@@ -166,15 +239,13 @@ async def process_matchmaking(update: Update, context: ContextTypes.DEFAULT_TYPE
         p2 = queue.pop(0)
 
         for p_target, p_other in [(p1, p2), (p2, p1)]:
+            target_t = TEXTS[p_target["lang"]]
             try:
                 await context.bot.send_message(
                     chat_id=p_target["user_id"],
-                    text=f"🎉 **ҚАРСЫЛАС ТАБЫЛДЫ! ({mode})**\n\n"
-                         f"🎮 Қарсыластың ID/Нигі: `{p_other['bs_id']}`\n"
-                         f"💬 Telegram: @{p_other['username']}\n\n"
-                         f"Жылдам друзя тастап, ойынға кіріңіздер!",
+                    text=target_t["match_found"].format(mode=mode, other_bs=p_other['bs_id'], other_tg=p_other['username']),
                     parse_mode="Markdown",
-                    reply_markup=main_menu()
+                    reply_markup=main_menu(p_target["user_id"])
                 )
             except Exception:
                 pass
@@ -182,42 +253,38 @@ async def process_matchmaking(update: Update, context: ContextTypes.DEFAULT_TYPE
     return ConversationHandler.END
 
 
-# --- ТУРНИРГЕ ТІРКЕЛУ ---
+# --- REGISTRATION ---
 
 async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    user_id = query.from_user.id
+    lang = get_lang(user_id)
+    t = TEXTS[lang]
     await query.answer()
     
     if len(REGISTERED_PLAYERS) >= PLAYER_LIMIT:
-        await query.edit_message_text(
-            "❌ Кешіріңіз, турнирдегі барлық орындар толып кетті!",
-            reply_markup=back_menu()
-        )
+        await query.edit_message_text(t["reg_full"], reply_markup=back_menu(user_id))
         return ConversationHandler.END
 
-    back_kb = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Артқа қайту", callback_data="home")]])
-    await query.edit_message_text(
-        "📝 **ТУРНИРГЕ ТІРКЕЛУ**\n\n"
-        "Өтініш, өзіңіздің **Brawl Stars ID**-іңізді немесе никнейміңізді жазыңыз:",
-        reply_markup=back_kb
-    )
+    await query.edit_message_text(t["reg_start"], reply_markup=back_menu(user_id))
     return WAITING_FOR_BS_ID
 
 
 async def get_bs_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    lang = get_lang(user_id)
+    t = TEXTS[lang]
+
     bs_id = update.message.text
     context.user_data["bs_id"] = bs_id
 
     pay_keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("💬 Ұйымдастырушыға жазу", url=f"https://t.me/{ADMIN_USERNAME}")],
-        [InlineKeyboardButton("⬅️ Бас мәзір", callback_data="home")]
+        [InlineKeyboardButton(t["btn_admin_write"], url=f"https://t.me/{ADMIN_USERNAME}")],
+        [InlineKeyboardButton(t["btn_back"], callback_data="home")]
     ])
 
     await update.message.reply_text(
-        f"✅ Нигіңіз қабылданды: `{bs_id}`\n\n"
-        f"💳 **ЖАРНА ТӨЛЕУ ({ENTRY_FEE} ₸)**\n"
-        f"Реквизит алу үшін ұйымдастырушыға жазыңыз: @{ADMIN_USERNAME}\n\n"
-        "📸 **Төлем жасаған соң, чекті (скриншот/сурет) осы чатқа жіберіңіз!**",
+        t["bs_id_accept"].format(bs_id=bs_id, fee=ENTRY_FEE, admin=ADMIN_USERNAME),
         parse_mode="Markdown",
         reply_markup=pay_keyboard
     )
@@ -226,7 +293,10 @@ async def get_bs_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    bs_id = context.user_data.get("bs_id", "Көрсетілмеген")
+    user_id = user.id
+    lang = get_lang(user_id)
+    t = TEXTS[lang]
+    bs_id = context.user_data.get("bs_id", "Unknown")
 
     admin_keyboard = InlineKeyboardMarkup([
         [
@@ -236,42 +306,28 @@ async def get_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ])
 
     caption_text = (
-        f"📥 **ТУРНИРГЕ ЖАҢА ӨТІНІШ!**\n\n"
-        f"👤 Есімі: {user.full_name} (@{user.username})\n"
+        f"📥 **НОВАЯ ЗАЯВКА НА ТУРНИР!**\n\n"
+        f"👤 Имя: {user.full_name} (@{user.username})\n"
         f"🆔 Telegram ID: `{user.id}`\n"
         f"🎮 BS ID/Ник: `{bs_id}`"
     )
 
     if update.message.photo:
-        await context.bot.send_photo(
-            chat_id=ADMIN_ID,
-            photo=update.message.photo[-1].file_id,
-            caption=caption_text,
-            reply_markup=admin_keyboard,
-            parse_mode="Markdown"
-        )
+        await context.bot.send_photo(chat_id=ADMIN_ID, photo=update.message.photo[-1].file_id, caption=caption_text, reply_markup=admin_keyboard, parse_mode="Markdown")
     elif update.message.document:
-        await context.bot.send_document(
-            chat_id=ADMIN_ID,
-            document=update.message.document.file_id,
-            caption=caption_text,
-            reply_markup=admin_keyboard,
-            parse_mode="Markdown"
-        )
+        await context.bot.send_document(chat_id=ADMIN_ID, document=update.message.document.file_id, caption=caption_text, reply_markup=admin_keyboard, parse_mode="Markdown")
 
-    await update.message.reply_text(
-        "⏳ **Чек ұйымдастырушыға тексеруге жіберілді!**",
-        reply_markup=back_menu()
-    )
+    await update.message.reply_text(t["receipt_sent"], reply_markup=back_menu(user_id))
     return ConversationHandler.END
 
 
 async def cancel_reg(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Әрекет тоқтатылды.", reply_markup=main_menu())
+    user_id = update.effective_user.id
+    await update.message.reply_text("Canceled.", reply_markup=main_menu(user_id))
     return ConversationHandler.END
 
 
-# --- АДМИН ПАНЕЛІ ---
+# --- ADMIN PANEL ---
 
 async def admin_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -280,70 +336,34 @@ async def admin_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = query.data.split("_")
     action = data[0]
     target_user_id = int(data[1])
+    target_lang = get_lang(target_user_id)
 
     if action == "approve":
-        bs_id = data[2] if len(data) > 2 else "Қатысушы"
+        bs_id = data[2] if len(data) > 2 else "Player"
         if target_user_id not in REGISTERED_PLAYERS:
             REGISTERED_PLAYERS.append(target_user_id)
             PLAYERS_INFO.append({"id": target_user_id, "bs_id": bs_id})
 
-        await query.edit_message_caption(caption=query.message.caption + "\n\n✅ **МӘРТЕБЕСІ: ҚАБЫЛДАНДЫ**")
+        await query.edit_message_caption(caption=query.message.caption + "\n\n✅ **СТАТУС: ҚАБЫЛДАНДЫ**")
         await context.bot.send_message(
             chat_id=target_user_id,
-            text="🎉 **ҚҰТТЫҚТАЙМЫЗ!** Өтінішіңіз расталды. Сіз турнирге сәтті тіркелдіңіз!",
-            reply_markup=main_menu()
+            text=TEXTS[target_lang]["approved"],
+            reply_markup=main_menu(target_user_id)
         )
     elif action == "reject":
-        await query.edit_message_caption(caption=query.message.caption + "\n\n❌ **МӘРТЕБЕСІ: ҚАБЫЛДАНБАДЫ**")
+        await query.edit_message_caption(caption=query.message.caption + "\n\n❌ **СТАТУС: ҚАЙТАРЫЛДЫ**")
         await context.bot.send_message(
             chat_id=target_user_id,
-            text="❌ Кешіріңіз, өтінішіңіз қабылданбады.",
-            reply_markup=main_menu()
+            text=TEXTS[target_lang]["rejected"],
+            reply_markup=main_menu(target_user_id)
         )
 
 
 async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         return
-
-    players_list = "\n".join([f"- ID: `{p['bs_id']}` (TG: {p['id']})" for p in PLAYERS_INFO]) if PLAYERS_INFO else "Әлі ойыншылар жоқ"
-
-    await update.message.reply_text(
-        f"👑 **АДМИН ПАНЕЛІ**\n\n"
-        f"👥 Қатысушылар: {len(REGISTERED_PLAYERS)}/{PLAYER_LIMIT}\n\n"
-        f"📋 **Тізім:**\n{players_list}\n\n"
-        "/broadcast - Барлығына хабарлама жіберу\n"
-        "/reset_tournament - Тізімді тазалау",
-        parse_mode="Markdown"
-    )
-
-
-async def start_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
-        return
-    await update.message.reply_text("📢 Барлық қатысушыларға жіберілетін мәтінді жазыңыз:")
-    return BROADCAST_TEXT
-
-
-async def send_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text_to_send = update.message.text
-    count = 0
-    for user_id in REGISTERED_PLAYERS:
-        try:
-            await context.bot.send_message(chat_id=user_id, text=f"📢 **ХАБАРЛАМА:**\n\n{text_to_send}", parse_mode="Markdown")
-            count += 1
-        except Exception:
-            pass
-    await update.message.reply_text(f"✅ {count} қатысушыға жіберілді!")
-    return ConversationHandler.END
-
-
-async def reset_tournament(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
-        return
-    REGISTERED_PLAYERS.clear()
-    PLAYERS_INFO.clear()
-    await update.message.reply_text("🔄 Тізім тазаланды!")
+    players_list = "\n".join([f"- ID: `{p['bs_id']}` (TG: {p['id']})" for p in PLAYERS_INFO]) if PLAYERS_INFO else "Ойыншылар жоқ"
+    await update.message.reply_text(f"👑 **АДМИН ПАНЕЛІ**\n\n👥 Қатысушылар: {len(REGISTERED_PLAYERS)}/{PLAYER_LIMIT}\n\n📋 **Тізім:**\n{players_list}", parse_mode="Markdown")
 
 
 def main():
@@ -357,13 +377,11 @@ def main():
             CallbackQueryHandler(start_registration, pattern="^start_reg$"),
             CallbackQueryHandler(start_matchmaking_1v1, pattern="^find_1v1$"),
             CallbackQueryHandler(start_matchmaking_3v3, pattern="^find_3v3$"),
-            CommandHandler("broadcast", start_broadcast)
         ],
         states={
             WAITING_FOR_BS_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_bs_id)],
             WAITING_FOR_RECEIPT: [MessageHandler(filters.PHOTO | filters.Document.ALL, get_receipt)],
             WAITING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_matchmaking)],
-            BROADCAST_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_broadcast)],
         },
         fallbacks=[CommandHandler("cancel", cancel_reg)],
     )
@@ -371,11 +389,10 @@ def main():
     app.add_handler(conv_handler)
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_panel))
-    app.add_handler(CommandHandler("reset_tournament", reset_tournament))
     app.add_handler(CallbackQueryHandler(admin_decision, pattern="^(approve|reject)_"))
     app.add_handler(CallbackQueryHandler(buttons))
 
-    logger.info("VIREON Bot толық жұмыс істеп тұр!")
+    logger.info("VIREON Multi-Lang Bot запущен!")
     app.run_polling()
 
 

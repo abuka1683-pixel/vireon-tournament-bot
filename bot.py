@@ -21,12 +21,12 @@ ADMIN_ID = 6847899606
 ADMIN_USERNAME = "abukaa111222"
 CHANNEL_URL = "https://t.me/sabinanizhaksykoremm"
 
-# ЖАСАНДЫ ИНТЕЛЛЕКТКЕ АРНАЛҒАН API КІЛТІ
-GEMINI_API_KEY = "ӨЗ_АПИ_КІЛТІҢІЗДІ_ОСЫЖАҒҚА_ЖАЗЫҢЫЗ"  # <--- Көшіріп алған кілтті осында тырнақшаның ішіне жабыстырыңыз!
+# ӨЗІҢНІҢ GEMINI API КІЛТІҢДІ ОСЫНДА ТЫРНАҚША ІШІНЕ ЖАЗ
+GEMINI_API_KEY = "ӨЗ_АПИ_КІЛТІҢІЗДІ_ОСЫЖАҒҚА_ЖАЗЫҢЫЗ"
 
-# Gemini AI конфигурациясы
+# Gemini AI конфигурациясы (тұрақты жұмыс істейтін модель)
 genai.configure(api_key=GEMINI_API_KEY)
-ai_model = genai.GenerativeModel("gemini-1.5-flash") # немесе gemini-1.5-flash
+ai_model = genai.GenerativeModel("gemini-1.5-flash")
 
 TIKTOK_HANDLE = "Nexor6589"
 YOUTUBE_HANDLE = "Nexor6589"
@@ -257,11 +257,10 @@ async def process_ai_question(update: Update, context: ContextTypes.DEFAULT_TYPE
     wait_msg = await update.message.reply_text(t["ai_wait"])
 
     try:
-        # Gemini арқылы жауап алу
         response = ai_model.generate_content(user_question)
         answer_text = response.text
     except Exception as e:
-        answer_text = "⚠️ Кешіріңіз, қазір жасанды интеллектке қосылу мүмкіндігі болмады. Кейінірек көріңізші."
+        answer_text = f"⚠️ Қате орын алды: {str(e)}"
 
     try:
         await wait_msg.delete()
@@ -472,7 +471,7 @@ def main():
     app.add_handler(CallbackQueryHandler(admin_decision, pattern="^(approve|reject)_"))
     app.add_handler(CallbackQueryHandler(buttons_handler))
 
-    logger.info("VIREON Bot (AI & Admin Profile) іске қосылды!")
+    logger.info("VIREON Bot іске қосылды!")
     app.run_polling()
 
 

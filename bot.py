@@ -1,6 +1,5 @@
 import os
 import logging
-import google.generativeai as genai
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -13,20 +12,13 @@ from telegram.ext import (
 )
 
 # ==========================================
-# VIREON TOURNAMENT BOT + GEMINI AI
+# VIREON TOURNAMENT BOT (ADMIN HELP SYSTEM)
 # ==========================================
 
 BOT_TOKEN = "8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE"
 ADMIN_ID = 6847899606
 ADMIN_USERNAME = "abukaa111222"
 CHANNEL_URL = "https://t.me/sabinanizhaksykoremm"
-
-# ӨЗІҢНІҢ GEMINI API КІЛТІҢДІ ОСЫНДА ТЫРНАҚША ІШІНЕ ЖАЗ
-GEMINI_API_KEY = "ӨЗ_АПИ_КІЛТІҢІЗДІ_ОСЫЖАҒҚА_ЖАЗЫҢЫЗ"
-
-# Gemini AI конфигурациясы (тұрақты жұмыс істейтін модель)
-genai.configure(api_key=GEMINI_API_KEY)
-ai_model = genai.GenerativeModel("gemini-1.5-flash")
 
 TIKTOK_HANDLE = "Nexor6589"
 YOUTUBE_HANDLE = "Nexor6589"
@@ -41,7 +33,6 @@ PLAYER_LIMIT = 5
 WAITING_FOR_BS_ID = 1
 WAITING_FOR_RECEIPT = 2
 WAITING_MATCH_ID = 3
-WAITING_FOR_AI_QUESTION = 4
 
 REGISTERED_PLAYERS = []
 PLAYERS_INFO = []
@@ -56,11 +47,11 @@ logger = logging.getLogger(__name__)
 
 TEXTS = {
     "KK": {
-        "welcome": "🎮 VIREON БОТЫНА ҚОШ КЕЛДІҢІЗ!\n\nТурнирлерге қатысып, 1в1/3в3 форматта ойнаңыз немесе AI көмекшісінен сұрақ сұраңыз.\n\nҚажетті бөлімді таңдаңыз:",
+        "welcome": "🎮 VIREON БОТЫНА ҚОШ КЕЛДІҢІЗ!\n\nТурнирлерге қатысып, 1в1/3в3 форматта ойнаңыз немесе көмек бөлімін пайдаланыңыз.\n\nҚажетті бөлімді таңдаңыз:",
         "btn_tour": "🏆 Турнирге қатысу",
         "btn_1v1": "⚔️ 1в1 Дуэль табу",
         "btn_3v3": "🛡️ 3в3 Команда табу",
-        "btn_ai": "🤖 AI көмекшісі",
+        "btn_admin_help": "👑 Админнен көмек",
         "btn_profile": "👑 Ұйымдастырушы профилі",
         "btn_rules": "📋 Турнир ережелері",
         "btn_channel": "📢 Негізгі канал",
@@ -68,8 +59,14 @@ TEXTS = {
         "btn_back": "⬅️ Бас мәзір",
         "rules": f"🏆 BRAWL STARS ТУРНИРІНІҢ ЕРЕЖЕЛЕРІ\n\n💰 Кіру жарнасы: {ENTRY_FEE} ₸\n👥 Қатысушылар саны: {PLAYER_LIMIT} адам\n🗺️ Карта: {MAP_NAME}\n\n🥇 1-орын: {FIRST_PRIZE} ₸\n🥈 2-орын: {SECOND_PRIZE} ₸",
         "profile": "👑 **ҰЙЫМДАСТУШЫ ПРОФИЛІ**\n\n👤 Ұйымдастырушы: `@abukaa111222`\n\n📱 **Әлеуметтік желілер:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
-        "ai_start": "🤖 **ЖАСАНДЫ ИНТЕЛЛЕКТКЕ СҰРАҚ ҚОЮ**\n\nBrawl Stars немесе турнир туралы кез келген сұрағыңызды жазыңыз:",
-        "ai_wait": "⏳ ЖИ жауап дайындауда, сәл күтіңіз...",
+        
+        # Админнен көмек мәтіндері
+        "admin_help_start": "👑 **Админнен көмек**\n\nСәлем достым, не көмек керек?",
+        "btn_q1": "1️⃣ Турнирге қалай қосылуға болады?",
+        "btn_q2": "2️⃣ Турнир не үшін?",
+        "ans_q1": "📝 Турнирге қатысу батырмасын басыңыз және өз айдиыңызды жазып, жекеме шыгып байланысыңыз.",
+        "ans_q2": "💡 Турнир адамдардың бағын сынау, яғни адамның қаншалықты жақсы ойнауына байланысты, ол ұтысты да көбірек алады.",
+
         "reg_start": "📝 **ТУРНИРГЕ ТІРКЕЛУ**\n\nӨтініш, өзіңіздің **Brawl Stars ID**-іңізді немесе никнейміңізді жазыңыз:",
         "reg_full": "❌ Кешіріңіз, турнирдегі барлық орындар толып кетті!",
         "bs_id_accept": "✅ Нигіңіз қабылданды: `{bs_id}`\n\n💳 **ЖАРНА ТӨЛЕУ ({fee} ₸)**\nРеквизит алу үшін ұйымдастырушыға жазыңыз: @{admin}\n\n📸 **Төлем жасаған соң, чекті осы чатқа жіберіңіз!**",
@@ -83,11 +80,11 @@ TEXTS = {
         "rejected": "❌ Кешіріңіз, өтінішіңіз қабылданбады."
     },
     "RU": {
-        "welcome": "🎮 ДОБРО ПОЖАЛОВАТЬ В VIREON БОТ!\n\nУчаствуйте в турнирах 1в1/3в3 или задавайте вопросы AI помощнику.\n\nВыберите нужный раздел:",
+        "welcome": "🎮 ДОБРО ПОЖАЛОВАТЬ В VIREON БОТ!\n\nУчаствуйте в турнирах 1в1/3в3 или используйте раздел помощи.\n\nВыберите нужный раздел:",
         "btn_tour": "🏆 Участвовать в турнире",
         "btn_1v1": "⚔️ Найти 1в1 Дуэль",
         "btn_3v3": "🛡️ Найти 3в3 Команду",
-        "btn_ai": "🤖 ИИ Помощник",
+        "btn_admin_help": "👑 Помощь от админа",
         "btn_profile": "👑 Профиль организатора",
         "btn_rules": "📋 Правила турнира",
         "btn_channel": "📢 Основной канал",
@@ -95,8 +92,13 @@ TEXTS = {
         "btn_back": "⬅️ Главное меню",
         "rules": f"🏆 ПРАВИЛА ТУРНИРА BRAWL STARS\n\n💰 Взнос: {ENTRY_FEE} ₸\n👥 Участников: {PLAYER_LIMIT} чел.\n🗺️ Карта: {MAP_NAME}\n\n🥇 1 место: {FIRST_PRIZE} ₸\n🥈 2 место: {SECOND_PRIZE} ₸",
         "profile": "👑 **ПРОФИЛЬ ОРГАНИЗАТОРА**\n\n👤 Организатор: `@abukaa111222`\n\n📱 **Социальные сети:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
-        "ai_start": "🤖 **ВОПРОС ИИ ПОМОЩНИКУ**\n\nНапишите ваш вопрос про Brawl Stars или турнир:",
-        "ai_wait": "⏳ ИИ готовит ответ, пожалуйста подождите...",
+        
+        "admin_help_start": "👑 **Помощь от админа**\n\nПривет друг, какая помощь нужна?",
+        "btn_q1": "1️⃣ Как присоединиться к турниру?",
+        "btn_q2": "2️⃣ Для чего нужен турнир?",
+        "ans_q1": "📝 Нажмите кнопку участия в турнире, напишите свой айди и свяжитесь со мной в личке.",
+        "ans_q2": "💡 Турнир — это проверка удачи, то есть в зависимости от того, как хорошо человек играет, он получает больше призовых.",
+
         "reg_start": "📝 **РЕГИСТРАЦИЯ НА ТУРНИР**\n\nПожалуйста, напишите ваш **Brawl Stars ID** или никнейм:",
         "reg_full": "❌ Извините, все слоты на турнир уже заняты!",
         "bs_id_accept": "✅ Ваш ник принят: `{bs_id}`\n\n💳 **ОПЛАТА ВЗНОСА ({fee} ₸)**\nЧтобы получить реквизиты, напишите организатору: @{admin}\n\n📸 **После оплаты отправьте чек в этот чат!**",
@@ -110,11 +112,11 @@ TEXTS = {
         "rejected": "❌ Извините, ваша заявка была отклонена."
     },
     "EN": {
-        "welcome": "🎮 WELCOME TO VIREON BOT!\n\nJoin tournaments 1v1/3v3 or ask AI assistant for help.\n\nSelect a section below:",
+        "welcome": "🎮 WELCOME TO VIREON BOT!\n\nJoin tournaments 1v1/3v3 or use the help section.\n\nSelect a section below:",
         "btn_tour": "🏆 Join Tournament",
         "btn_1v1": "⚔️ Find 1v1 Duel",
         "btn_3v3": "🛡️ Find 3v3 Team",
-        "btn_ai": "🤖 AI Assistant",
+        "btn_admin_help": "👑 Admin Help",
         "btn_profile": "👑 Organizer Profile",
         "btn_rules": "📋 Tournament Rules",
         "btn_channel": "📢 Official Channel",
@@ -122,8 +124,13 @@ TEXTS = {
         "btn_back": "⬅️ Main Menu",
         "rules": f"🏆 BRAWL STARS TOURNAMENT RULES\n\n💰 Entry Fee: {ENTRY_FEE} ₸\n👥 Players: {PLAYER_LIMIT}\n🗺️ Map: {MAP_NAME}\n\n🥇 1st Place: {FIRST_PRIZE} ₸\n🥈 2nd Place: {SECOND_PRIZE} ₸",
         "profile": "👑 **ORGANIZER PROFILE**\n\n👤 Organizer: `@abukaa111222`\n\n📱 **Social Networks:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
-        "ai_start": "🤖 **ASK AI ASSISTANT**\n\nEnter your question about Brawl Stars or tournaments:",
-        "ai_wait": "⏳ AI is generating an answer, please wait...",
+        
+        "admin_help_start": "👑 **Admin Help**\n\nHello friend, what help do you need?",
+        "btn_q1": "1️⃣ How to join the tournament?",
+        "btn_q2": "2️⃣ What is the tournament for?",
+        "ans_q1": "📝 Click the tournament participation button, write your ID and contact me in direct messages.",
+        "ans_q2": "💡 The tournament is a test of luck, meaning depending on how well a person plays, they get more prizes.",
+
         "reg_start": "📝 **TOURNAMENT REGISTRATION**\n\nPlease enter your **Brawl Stars ID** or nickname:",
         "reg_full": "❌ Sorry, all slots for the tournament are full!",
         "bs_id_accept": "✅ Nickname accepted: `{bs_id}`\n\n💳 **ENTRY FEE ({fee} ₸)**\nContact organizer to get payment details: @{admin}\n\n📸 **Send your payment receipt screenshot here after payment!**",
@@ -148,7 +155,7 @@ def main_menu(user_id):
         [InlineKeyboardButton(t["btn_tour"], callback_data="start_reg")],
         [InlineKeyboardButton(t["btn_1v1"], callback_data="find_1v1"),
          InlineKeyboardButton(t["btn_3v3"], callback_data="find_3v3")],
-        [InlineKeyboardButton(t["btn_ai"], callback_data="ask_ai")],
+        [InlineKeyboardButton(t["btn_admin_help"], callback_data="admin_help")],
         [InlineKeyboardButton(t["btn_profile"], callback_data="my_profile")],
         [InlineKeyboardButton(t["btn_rules"], callback_data="rules")],
         [InlineKeyboardButton(t["btn_channel"], url=CHANNEL_URL)],
@@ -198,7 +205,6 @@ async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "home":
         await query.edit_message_text(t["welcome"], reply_markup=main_menu(user_id))
-        return ConversationHandler.END
 
     elif query.data == "change_lang":
         await query.edit_message_text("🌐 Тілді таңдаңыз / Выберите язык / Select language:", reply_markup=lang_menu())
@@ -216,10 +222,29 @@ async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         profile_txt = t["profile"].format(tt=TIKTOK_HANDLE, yt=YOUTUBE_HANDLE)
         await query.edit_message_text(profile_txt, parse_mode="Markdown", reply_markup=back_menu(user_id))
 
-    elif query.data == "ask_ai":
-        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
-        await query.edit_message_text(t["ai_start"], reply_markup=back_kb)
-        return WAITING_FOR_AI_QUESTION
+    elif query.data == "admin_help":
+        help_kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton(t["btn_q1"], callback_data="help_q1")],
+            [InlineKeyboardButton(t["btn_q2"], callback_data="help_q2")],
+            [InlineKeyboardButton(t["btn_back"], callback_data="home")]
+        ])
+        await query.edit_message_text(t["admin_help_start"], parse_mode="Markdown", reply_markup=help_kb)
+
+    elif query.data == "help_q1":
+        help_kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton(t["btn_q1"], callback_data="help_q1")],
+            [InlineKeyboardButton(t["btn_q2"], callback_data="help_q2")],
+            [InlineKeyboardButton(t["btn_back"], callback_data="home")]
+        ])
+        await query.edit_message_text(f"{t['admin_help_start']}\n\n👉 {t['btn_q1']}\n\n{t['ans_q1']}", parse_mode="Markdown", reply_markup=help_kb)
+
+    elif query.data == "help_q2":
+        help_kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton(t["btn_q1"], callback_data="help_q1")],
+            [InlineKeyboardButton(t["btn_q2"], callback_data="help_q2")],
+            [InlineKeyboardButton(t["btn_back"], callback_data="home")]
+        ])
+        await query.edit_message_text(f"{t['admin_help_start']}\n\n👉 {t['btn_q2']}\n\n{t['ans_q2']}", parse_mode="Markdown", reply_markup=help_kb)
 
     elif query.data == "find_1v1":
         context.user_data["match_mode"] = "1в1"
@@ -241,38 +266,6 @@ async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
         await query.edit_message_text(t["reg_start"], reply_markup=back_kb)
         return WAITING_FOR_BS_ID
-
-
-# --- AI HANDLER ---
-
-async def process_ai_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    lang = get_lang(user_id)
-    t = TEXTS[lang]
-
-    if not update.message or not update.message.text:
-        return WAITING_FOR_AI_QUESTION
-
-    user_question = update.message.text
-    wait_msg = await update.message.reply_text(t["ai_wait"])
-
-    try:
-        response = ai_model.generate_content(user_question)
-        answer_text = response.text
-    except Exception as e:
-        answer_text = f"⚠️ Қате орын алды: {str(e)}"
-
-    try:
-        await wait_msg.delete()
-    except Exception:
-        pass
-
-    await update.message.reply_text(
-        f"🤖 **ЖИ Жауабы:**\n\n{answer_text}",
-        parse_mode="Markdown",
-        reply_markup=back_menu(user_id)
-    )
-    return ConversationHandler.END
 
 
 # --- MATCHMAKING & REGISTRATION MESSAGES ---
@@ -451,17 +444,16 @@ def main():
 
     conv_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(buttons_handler, pattern="^(start_reg|find_1v1|find_3v3|ask_ai|home|rules|my_profile|change_lang|set_lang_.*)$")
+            CallbackQueryHandler(buttons_handler, pattern="^(start_reg|find_1v1|find_3v3|home|rules|my_profile|change_lang|set_lang_.*|admin_help|help_q1|help_q2)$")
         ],
         states={
             WAITING_FOR_BS_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_bs_id)],
             WAITING_FOR_RECEIPT: [MessageHandler(filters.PHOTO | filters.Document.ALL | filters.TEXT, get_receipt)],
             WAITING_MATCH_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_matchmaking)],
-            WAITING_FOR_AI_QUESTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_ai_question)],
         },
         fallbacks=[
             CommandHandler("cancel", cancel_conversation),
-            CallbackQueryHandler(buttons_handler, pattern="^(home|change_lang|set_lang_.*)$")
+            CallbackQueryHandler(buttons_handler, pattern="^(home|change_lang|set_lang_.*|admin_help|help_q1|help_q2)$")
         ],
     )
 
@@ -471,7 +463,7 @@ def main():
     app.add_handler(CallbackQueryHandler(admin_decision, pattern="^(approve|reject)_"))
     app.add_handler(CallbackQueryHandler(buttons_handler))
 
-    logger.info("VIREON Bot іске қосылды!")
+    logger.info("VIREON Bot (Admin Help) сәтті іске қосылды!")
     app.run_polling()
 
 

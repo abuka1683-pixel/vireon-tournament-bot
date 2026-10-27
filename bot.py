@@ -26,7 +26,7 @@ GEMINI_API_KEY = "ӨЗ_АПИ_КІЛТІҢІЗДІ_ОСЫЖАҒҚА_ЖАЗЫҢЫ
 
 # Gemini AI конфигурациясы
 genai.configure(api_key=GEMINI_API_KEY)
-ai_model = genai.GenerativeModel("gemini-2.5-flash") # немесе gemini-1.5-flash
+ai_model = genai.GenerativeModel("gemini-1.5-flash") # немесе gemini-1.5-flash
 
 TIKTOK_HANDLE = "Nexor6589"
 YOUTUBE_HANDLE = "Nexor6589"

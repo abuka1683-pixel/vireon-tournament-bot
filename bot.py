@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # ==========================================
-# VIREON TOURNAMENT BOT (SAFE VERSION)
+# VIREON TOURNAMENT BOT (EXPANDED & SAFE)
 # ==========================================
 
 # 1. БОТ ТОКЕНІ
@@ -21,8 +21,8 @@ BOT_TOKEN = "8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE"
 # 2. ӨЗІҢІЗДІҢ ТЕЛЕГРАМ ID-ҢІЗ (Сандармен)
 ADMIN_ID = 6847899606
 
-# 3. ӨЗІҢІЗДІҢ ТЕЛЕГРАМ ЛОГИНИҢІЗ (Төлем алу үшін)
-ADMIN_USERNAME = "@abukaa111222"
+# 3. ӨЗІҢІЗДІҢ ТЕЛЕГРАМ ЛОГИНИҢІЗ (Төлем алу үшін, @ БЕЛГІСІЗ)
+ADMIN_USERNAME = "abukaa111222"
 
 # 4. ТУРНИР КАНАЛЫНЫҢ СІЛТЕМЕСІ
 CHANNEL_URL = "https://t.me/sabinanizhaksykoremm"
@@ -74,7 +74,7 @@ def rules_text():
         f"🚫 ЗАПРЕЩЁННЫЕ БОЙЦЫ:\n{BANNED_BRAWLERS}\n\n"
         "📌 КАК УЧАСТВУАТЬ:\n"
         "1. Нажмите 'Войти в турнир'.\n"
-        "2. Укажите ваш Brawl Stars ID.\n"
+        "2. Укажите ваш Brawl Stars ID или никнейм.\n"
         "3. Напишите организатору для получения реквизитов.\n"
         "4. Отправьте чек оплаты в этот чат."
     )
@@ -137,6 +137,7 @@ async def start_registration(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 
 async def get_bs_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Код түзетілді: Енді кез келген мәтінді (никнеймді) қабылдайды
     bs_id = update.message.text
     context.user_data["bs_id"] = bs_id
 
@@ -144,11 +145,13 @@ async def get_bs_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("💬 Написать организатору", url=f"https://t.me/{ADMIN_USERNAME}")]
     ])
 
+    # Сондай-ақ "Пожалуйста" мәтінін түзедік
     await update.message.reply_text(
-        f"✅ Ваш ID принят: `{bs_id}`\n\n"
+        f"✅ Ваш ник принят: `{bs_id}`\n\n"
         f"💳 **ОПЛАТА ВЗНОСА ({ENTRY_FEE} ₸)**\n"
         f"Чтобы получить реквизиты, напишите организатору: @{ADMIN_USERNAME}\n\n"
-        "📸 **После оплаты отправьте скриншот/чек в этот чат!**",
+        "📸 **После оплаты отправьте скриншот/чек в этот чат!**\n\n"
+        "Пожалуйста, отправьте чек (фотографией или файлом):",
         parse_mode="Markdown",
         reply_markup=pay_keyboard
     )

@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # ==========================================
-# VIREON TOURNAMENT BOT (ADMIN HELP SYSTEM)
+# VIREON TOURNAMENT BOT (UNIVERSAL 3-BUTTON MENU)
 # ==========================================
 
 BOT_TOKEN = "8639140920:AAGrRTPWG-hOksM_ssmFRUv9nSng8HxU7fE"
@@ -48,24 +48,29 @@ logger = logging.getLogger(__name__)
 TEXTS = {
     "KK": {
         "welcome": "🎮 VIREON БОТЫНА ҚОШ КЕЛДІҢІЗ!\n\nТурнирлерге қатысып, 1в1/3в3 форматта ойнаңыз немесе көмек бөлімін пайдаланыңыз.\n\nҚажетті бөлімді таңдаңыз:",
+        "btn_lang": "🌐 Тілді ауыстыру / Язык",
+        "btn_admin": "👑 Админ профилі",
+        "btn_brawl": "⚔️ Brawl Турнири",
+        
+        "brawl_menu": "⚔️ **Brawl Турнири мәзірі**\n\nҚажетті бөлімді таңдаңыз:",
         "btn_tour": "🏆 Турнирге қатысу",
         "btn_1v1": "⚔️ 1в1 Дуэль табу",
         "btn_3v3": "🛡️ 3в3 Команда табу",
         "btn_admin_help": "👑 Админнен көмек",
-        "btn_profile": "👑 Ұйымдастырушы профилі",
         "btn_rules": "📋 Турнир ережелері",
         "btn_channel": "📢 Негізгі канал",
-        "btn_lang": "🌐 Тілді ауыстыру / Язык / Language",
+        
         "btn_back": "⬅️ Бас мәзір",
+        "btn_back_brawl": "⬅️ Турнир мәзіріне қайту",
+        
         "rules": f"🏆 BRAWL STARS ТУРНИРІНІҢ ЕРЕЖЕЛЕРІ\n\n💰 Кіру жарнасы: {ENTRY_FEE} ₸\n👥 Қатысушылар саны: {PLAYER_LIMIT} адам\n🗺️ Карта: {MAP_NAME}\n\n🥇 1-орын: {FIRST_PRIZE} ₸\n🥈 2-орын: {SECOND_PRIZE} ₸",
         "profile": "👑 **ҰЙЫМДАСТУШЫ ПРОФИЛІ**\n\n👤 Ұйымдастырушы: `@abukaa111222`\n\n📱 **Әлеуметтік желілер:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
         
-        # Админнен көмек мәтіндері
         "admin_help_start": "👑 **Админнен көмек**\n\nСәлем достым, не көмек керек?",
         "btn_q1": "1️⃣ Турнирге қалай қосылуға болады?",
         "btn_q2": "2️⃣ Турнир не үшін?",
         "ans_q1": "📝 Турнирге қатысу батырмасын басыңыз және өз айдиыңызды жазып, жекеме шыгып байланысыңыз.",
-        "ans_q2": "💡 Турнир адамдардың бағын сынау, яғни адамның қаншалықты жақсы ойнауына байланысты, ол ұтысты да көбірек алады.",
+        "ans_q2": "💡 Турнир адамдардың бағын сынау, яғни адамның қаншалықты жақсы ойнауына байланысты, ол ұтысты da көбірек алады.",
 
         "reg_start": "📝 **ТУРНИРГЕ ТІРКЕЛУ**\n\nӨтініш, өзіңіздің **Brawl Stars ID**-іңізді немесе никнейміңізді жазыңыз:",
         "reg_full": "❌ Кешіріңіз, турнирдегі барлық орындар толып кетті!",
@@ -81,15 +86,21 @@ TEXTS = {
     },
     "RU": {
         "welcome": "🎮 ДОБРО ПОЖАЛОВАТЬ В VIREON БОТ!\n\nУчаствуйте в турнирах 1в1/3в3 или используйте раздел помощи.\n\nВыберите нужный раздел:",
+        "btn_lang": "🌐 Сменить язык",
+        "btn_admin": "👑 Профиль админа",
+        "btn_brawl": "⚔️ Турнир Brawl",
+        
+        "brawl_menu": "⚔️ **Меню Турнира Brawl**\n\nВыберите нужный раздел:",
         "btn_tour": "🏆 Участвовать в турнире",
         "btn_1v1": "⚔️ Найти 1в1 Дуэль",
         "btn_3v3": "🛡️ Найти 3в3 Команду",
         "btn_admin_help": "👑 Помощь от админа",
-        "btn_profile": "👑 Профиль организатора",
         "btn_rules": "📋 Правила турнира",
         "btn_channel": "📢 Основной канал",
-        "btn_lang": "🌐 Тілді ауыстыру / Язык / Language",
+        
         "btn_back": "⬅️ Главное меню",
+        "btn_back_brawl": "⬅️ Назад в меню турнира",
+        
         "rules": f"🏆 ПРАВИЛА ТУРНИРА BRAWL STARS\n\n💰 Взнос: {ENTRY_FEE} ₸\n👥 Участников: {PLAYER_LIMIT} чел.\n🗺️ Карта: {MAP_NAME}\n\n🥇 1 место: {FIRST_PRIZE} ₸\n🥈 2 место: {SECOND_PRIZE} ₸",
         "profile": "👑 **ПРОФИЛЬ ОРГАНИЗАТОРА**\n\n👤 Организатор: `@abukaa111222`\n\n📱 **Социальные сети:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
         
@@ -113,15 +124,21 @@ TEXTS = {
     },
     "EN": {
         "welcome": "🎮 WELCOME TO VIREON BOT!\n\nJoin tournaments 1v1/3v3 or use the help section.\n\nSelect a section below:",
+        "btn_lang": "🌐 Change Language",
+        "btn_admin": "👑 Admin Profile",
+        "btn_brawl": "⚔️ Brawl Tournament",
+        
+        "brawl_menu": "⚔️ **Brawl Tournament Menu**\n\nSelect a section:",
         "btn_tour": "🏆 Join Tournament",
         "btn_1v1": "⚔️ Find 1v1 Duel",
         "btn_3v3": "🛡️ Find 3v3 Team",
         "btn_admin_help": "👑 Admin Help",
-        "btn_profile": "👑 Organizer Profile",
         "btn_rules": "📋 Tournament Rules",
         "btn_channel": "📢 Official Channel",
-        "btn_lang": "🌐 Change Language / Тіл / Язык",
+        
         "btn_back": "⬅️ Main Menu",
+        "btn_back_brawl": "⬅️ Back to Tournament Menu",
+        
         "rules": f"🏆 BRAWL STARS TOURNAMENT RULES\n\n💰 Entry Fee: {ENTRY_FEE} ₸\n👥 Players: {PLAYER_LIMIT}\n🗺️ Map: {MAP_NAME}\n\n🥇 1st Place: {FIRST_PRIZE} ₸\n🥈 2nd Place: {SECOND_PRIZE} ₸",
         "profile": "👑 **ORGANIZER PROFILE**\n\n👤 Organizer: `@abukaa111222`\n\n📱 **Social Networks:**\n🎵 TikTok: `{tt}` (https://tiktok.com/@{tt})\n📺 YouTube: `{yt}`",
         
@@ -148,6 +165,9 @@ TEXTS = {
 def get_lang(user_id):
     return USER_LANGS.get(user_id, "KK")
 
+# ==========================================
+# МӘЗІРЛЕР (Басты мәзірде тек 3 түйме)
+# ==========================================
 def main_menu(user_id):
     lang = get_lang(user_id)
     t = TEXTS[lang]
@@ -155,6 +175,19 @@ def main_menu(user_id):
         [InlineKeyboardButton(t["btn_lang"], callback_data="change_lang")],
         [InlineKeyboardButton(t["btn_admin"], callback_data="my_profile")],
         [InlineKeyboardButton(t["btn_brawl"], callback_data="menu_brawl")],
+    ])
+
+def brawl_menu(user_id):
+    lang = get_lang(user_id)
+    t = TEXTS[lang]
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton(t["btn_tour"], callback_data="start_reg")],
+        [InlineKeyboardButton(t["btn_1v1"], callback_data="find_1v1"),
+         InlineKeyboardButton(t["btn_3v3"], callback_data="find_3v3")],
+        [InlineKeyboardButton(t["btn_admin_help"], callback_data="admin_help")],
+        [InlineKeyboardButton(t["btn_rules"], callback_data="rules")],
+        [InlineKeyboardButton(t["btn_channel"], url=CHANNEL_URL)],
+        [InlineKeyboardButton(t["btn_back"], callback_data="home")],
     ])
 
 def lang_menu():
@@ -168,7 +201,7 @@ def lang_menu():
 def back_menu(user_id):
     lang = get_lang(user_id)
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton(TEXTS[lang]["btn_back"], callback_data="home")]
+        [InlineKeyboardButton(TEXTS[lang]["btn_back_brawl"], callback_data="menu_brawl")]
     ])
 
 
@@ -210,18 +243,22 @@ async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         new_t = TEXTS[new_lang]
         await query.edit_message_text(new_t["welcome"], reply_markup=main_menu(user_id))
 
+    elif query.data == "menu_brawl":
+        await query.edit_message_text(t["brawl_menu"], reply_markup=brawl_menu(user_id))
+
     elif query.data == "rules":
         await query.edit_message_text(t["rules"], reply_markup=back_menu(user_id))
 
     elif query.data == "my_profile":
         profile_txt = t["profile"].format(tt=TIKTOK_HANDLE, yt=YOUTUBE_HANDLE)
-        await query.edit_message_text(profile_txt, parse_mode="Markdown", reply_markup=back_menu(user_id))
+        back_home_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
+        await query.edit_message_text(profile_txt, parse_mode="Markdown", reply_markup=back_home_kb)
 
     elif query.data == "admin_help":
         help_kb = InlineKeyboardMarkup([
             [InlineKeyboardButton(t["btn_q1"], callback_data="help_q1")],
             [InlineKeyboardButton(t["btn_q2"], callback_data="help_q2")],
-            [InlineKeyboardButton(t["btn_back"], callback_data="home")]
+            [InlineKeyboardButton(t["btn_back_brawl"], callback_data="menu_brawl")]
         ])
         await query.edit_message_text(t["admin_help_start"], parse_mode="Markdown", reply_markup=help_kb)
 
@@ -229,7 +266,7 @@ async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         help_kb = InlineKeyboardMarkup([
             [InlineKeyboardButton(t["btn_q1"], callback_data="help_q1")],
             [InlineKeyboardButton(t["btn_q2"], callback_data="help_q2")],
-            [InlineKeyboardButton(t["btn_back"], callback_data="home")]
+            [InlineKeyboardButton(t["btn_back_brawl"], callback_data="menu_brawl")]
         ])
         await query.edit_message_text(f"{t['admin_help_start']}\n\n👉 {t['btn_q1']}\n\n{t['ans_q1']}", parse_mode="Markdown", reply_markup=help_kb)
 
@@ -237,19 +274,19 @@ async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         help_kb = InlineKeyboardMarkup([
             [InlineKeyboardButton(t["btn_q1"], callback_data="help_q1")],
             [InlineKeyboardButton(t["btn_q2"], callback_data="help_q2")],
-            [InlineKeyboardButton(t["btn_back"], callback_data="home")]
+            [InlineKeyboardButton(t["btn_back_brawl"], callback_data="menu_brawl")]
         ])
         await query.edit_message_text(f"{t['admin_help_start']}\n\n👉 {t['btn_q2']}\n\n{t['ans_q2']}", parse_mode="Markdown", reply_markup=help_kb)
 
     elif query.data == "find_1v1":
         context.user_data["match_mode"] = "1в1"
-        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back_brawl"], callback_data="menu_brawl")]])
         await query.edit_message_text(t["match_1v1_start"], reply_markup=back_kb)
         return WAITING_MATCH_ID
 
     elif query.data == "find_3v3":
         context.user_data["match_mode"] = "3в3"
-        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back_brawl"], callback_data="menu_brawl")]])
         await query.edit_message_text(t["match_3v3_start"], reply_markup=back_kb)
         return WAITING_MATCH_ID
 
@@ -258,12 +295,10 @@ async def buttons_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(t["reg_full"], reply_markup=back_menu(user_id))
             return ConversationHandler.END
         
-        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back"], callback_data="home")]])
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(t["btn_back_brawl"], callback_data="menu_brawl")]])
         await query.edit_message_text(t["reg_start"], reply_markup=back_kb)
         return WAITING_FOR_BS_ID
 
-
-# --- MATCHMAKING & REGISTRATION MESSAGES ---
 
 async def process_matchmaking(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -321,7 +356,7 @@ async def get_bs_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     pay_keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton(t["btn_admin_write"], url=f"https://t.me/{ADMIN_USERNAME}")],
-        [InlineKeyboardButton(t["btn_back"], callback_data="home")]
+        [InlineKeyboardButton(t["btn_back_brawl"], callback_data="menu_brawl")]
     ])
 
     await update.message.reply_text(
@@ -381,8 +416,6 @@ async def cancel_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE
     return ConversationHandler.END
 
 
-# --- ADMIN PANEL ---
-
 async def admin_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     try:
@@ -439,7 +472,7 @@ def main():
 
     conv_handler = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(buttons_handler, pattern="^(start_reg|find_1v1|find_3v3|home|rules|my_profile|change_lang|set_lang_.*|admin_help|help_q1|help_q2)$")
+            CallbackQueryHandler(buttons_handler, pattern="^(start_reg|find_1v1|find_3v3|home|rules|my_profile|change_lang|set_lang_.*|admin_help|help_q1|help_q2|menu_brawl)$")
         ],
         states={
             WAITING_FOR_BS_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_bs_id)],
@@ -448,7 +481,7 @@ def main():
         },
         fallbacks=[
             CommandHandler("cancel", cancel_conversation),
-            CallbackQueryHandler(buttons_handler, pattern="^(home|change_lang|set_lang_.*|admin_help|help_q1|help_q2)$")
+            CallbackQueryHandler(buttons_handler, pattern="^(home|change_lang|set_lang_.*|admin_help|help_q1|help_q2|menu_brawl)$")
         ],
     )
 
@@ -458,7 +491,7 @@ def main():
     app.add_handler(CallbackQueryHandler(admin_decision, pattern="^(approve|reject)_"))
     app.add_handler(CallbackQueryHandler(buttons_handler))
 
-    logger.info("VIREON Bot (Admin Help) сәтті іске қосылды!")
+    logger.info("VIREON Bot сәтті іске қосылды!")
     app.run_polling()
 
 

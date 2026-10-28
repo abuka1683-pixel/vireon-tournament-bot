@@ -152,14 +152,9 @@ def main_menu(user_id):
     lang = get_lang(user_id)
     t = TEXTS[lang]
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton(t["btn_tour"], callback_data="start_reg")],
-        [InlineKeyboardButton(t["btn_1v1"], callback_data="find_1v1"),
-         InlineKeyboardButton(t["btn_3v3"], callback_data="find_3v3")],
-        [InlineKeyboardButton(t["btn_admin_help"], callback_data="admin_help")],
-        [InlineKeyboardButton(t["btn_profile"], callback_data="my_profile")],
-        [InlineKeyboardButton(t["btn_rules"], callback_data="rules")],
-        [InlineKeyboardButton(t["btn_channel"], url=CHANNEL_URL)],
         [InlineKeyboardButton(t["btn_lang"], callback_data="change_lang")],
+        [InlineKeyboardButton(t["btn_admin"], callback_data="my_profile")],
+        [InlineKeyboardButton(t["btn_brawl"], callback_data="menu_brawl")],
     ])
 
 def lang_menu():
